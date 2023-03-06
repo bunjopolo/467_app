@@ -87,4 +87,9 @@ def gantt_chart(output, algorithm_name):
     plt.show()
 
 
+if __name__ == "__main__":
+    output, algorithm_name = fcfs(fcfs_processes)
+    gantt_chart(output, algorithm_name)
+    output, algorithm_name = rr(rr_processes, quantum)
+    gantt_chart(output, algorithm_name)
 
