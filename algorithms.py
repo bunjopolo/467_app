@@ -23,7 +23,6 @@ def fcfs(processes):
             if end_time > processes[i][3]:
                 dl_missed = i
 
-
             output[i].append([start_time, end_time])
             current_time = end_time 
 
