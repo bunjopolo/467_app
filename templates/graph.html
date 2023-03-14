@@ -8,11 +8,16 @@
       <canvas id="myChart" width="900" height="400"></canvas>
       <body>
         <form action="/action_page.php">
-          <label for="tasks">Enter tasks to schedule:</label>
+          <label for="arrival times">Enter arrival times:</label>
           <input type="text" id="tasks" name="tasks"><br><br>
-          <input type="submit" value="Schedule">
         </form>
       </body>
+      <form action="/action_page.php">
+        <label for="Execution Times">Enter execution times:</label>
+        <input type="text" id="tasks" name="tasks"><br><br>
+        <input type="submit" value="Schedule">
+      </form>
+    </body>
     </div>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.1.0/moment.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.3/Chart.min.js"></script>
@@ -24,7 +29,7 @@
       for (var i = 0; i < labels.length; i++) {
         backgroundColors.push(getRandomColor());
       }
-
+    
       function getRandomColor() {
         var letters = '0123456789ABCDEF';
         var color = '#';

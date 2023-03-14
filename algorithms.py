@@ -2,13 +2,13 @@ import matplotlib.pyplot as plt
 import random
 
 #phase, period,execution time, deadline
-fcfs_processes = [[0,4,3,4], [1,3,1,3], [2,10,2,10], [3, 5, 2, 5]]
-runtime = 20
+fcfs_processes = [[0,4,3,4], [1,3,1,3]]
+runtime = 50
 
 rr_processes = [[4,8], [8,5]]
 quantum = 2
 
-def fcfs(processes):
+def fcfs(processes, runtime):
     algorithm_name = "First Come First Serve (FCFS)"
     dl_missed = None
     n = len(processes)
@@ -34,16 +34,16 @@ def fcfs(processes):
 
 
 
-def rr(processes, quantum):
+
+def rr(processes, quantum, runtime):
     n = len(processes)
     output = [[] for _ in range(n)]
     current_time = 0
     tmp = 0
     count = n 
     algorithm_name = "Round Robin"
-    runtime = 50
     
-    while count > 0:
+    while current_time > runtime:
         if tmp == n:
             current_time += 1
             tmp = 0
@@ -68,42 +68,6 @@ def rr(processes, quantum):
     return output, algorithm_name  
 
 
-def rr_with_runtime(processes, quantum, runtime):
-    n = len(processes)
-    output = [[] for _ in range(n)]
-    current_time = 0
-    tmp = 0
-    algorithm_name = "Round Robin"
-    
-    while current_time < runtime:
-        processes_tmp = processes
-        count = n
-        while count > 0:
-            print(processes_tmp)
-            if tmp == n:
-                current_time += 1
-                tmp = 0
-            for i in range(n):
-                start_time = current_time
-                if processes_tmp[i][0] > current_time:
-                    tmp +=1
-                    continue
-                if processes_tmp[i][1] <= quantum:
-                    end_time = start_time + processes_tmp[i][1]
-                    processes_tmp[i][1] = 0
-                    output[i].append([start_time, end_time])
-                    current_time = end_time
-                    count -= 1
-                if processes[i][1] == 0:
-                    continue
-                else:
-                    end_time = start_time + quantum
-                    processes_tmp[i][1] -= quantum
-                    output[i].append([start_time, end_time])
-                    current_time = end_time
-    return output, algorithm_name
-
-
 
 def gantt_chart(output, algorithm_name):
     """
@@ -125,10 +89,9 @@ def gantt_chart(output, algorithm_name):
 
 
 if __name__ == "__main__":
-    output, algorithm_name = fcfs(fcfs_processes)
+    output, algorithm_name = fcfs(fcfs_processes, runtime)
     gantt_chart(output, algorithm_name)
-    output, algorithm_name = rr(rr_processes, quantum)
+    output, algorithm_name = rr(rr_processes, quantum, runtime)
     gantt_chart(output, algorithm_name)
-    output = rr_with_runtime(rr_processes, quantum, 50)
-    gantt_chart(output, algorithm_name)
+
 
