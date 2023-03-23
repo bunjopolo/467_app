@@ -9,7 +9,7 @@ import random
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
-
+from PIL import Image
 
 
 class Ui_MainWindow(QMainWindow):
@@ -24,7 +24,7 @@ class Ui_MainWindow(QMainWindow):
         self.centralwidget = QtWidgets.QWidget(MainWindow) #set the central widget
         self.centralwidget.setObjectName("centralwidget") #set the name of the central widget
 
-
+        
         self.graph_label = QtWidgets.QLabel(self.centralwidget) #set the graph label
         self.graph_label.setGeometry(QtCore.QRect(20, 10, 791, size.height()-450)) #set the size and location of the graph label
         self.graph_label.setScaledContents(True) #scale the graph label to fit the size of the graph
@@ -329,7 +329,6 @@ class Ui_MainWindow(QMainWindow):
             else:
                 time_quant_arr = MainWindow.get_numbers(time_quant)
 
-
             #Create a dictionary to hold all the arrays
             processes = {'Run Time': run_time, 'arrival': arrival_arr, 'period': period_arr, 'execution': execution_arr, 'deadline': deadline_arr, 'time_quantum': time_quant_arr}
             print(processes)
@@ -360,17 +359,14 @@ class Ui_MainWindow(QMainWindow):
             
             #Create a graph
             MainWindow.gantt_chart(output, algorithm_name)
-            MainWindow.graph_label.setPixmap(QtGui.QPixmap('/Users/spencermarchand/Documents/VS_code/Python/467_project/img_sav'))
-
-
 
     def fcfs(self,processes, runtime):
         algorithm_name = "First Come First Serve (FCFS)"
         dl_missed = []
         n = len(processes['arrival'])
-        print(n)
         output = [[] for _ in range(n)]
-        current_time = 0 
+        current_time = 0
+        
         scheduled = None
 
         while current_time < runtime:
@@ -402,7 +398,7 @@ class Ui_MainWindow(QMainWindow):
             
         return output, algorithm_name
 
-    def gantt_chart(self,output, algorithm_name):
+    def gantt_chart(MainWindow,output, algorithm_name):
             """
             output has to be in the format [[start_time, end_time], [start_time, end_time], ...]
             """
@@ -422,7 +418,7 @@ class Ui_MainWindow(QMainWindow):
             
             #canvas = FigureCanvas(fig)
             fig.savefig('/Users/spencermarchand/Documents/VS_code/Python/467_project/img_sav')
-            
+            MainWindow.graph_label.setPixmap(QtGui.QPixmap('/Users/spencermarchand/Documents/VS_code/Python/467_project/img_sav.png'))
     
     def clearAll(MainWindow):
         MainWindow.runTime_edit.setText("")
@@ -442,7 +438,7 @@ class Ui_MainWindow(QMainWindow):
 if __name__ == "__main__":
     import sys
     app = QtWidgets.QApplication(sys.argv)
-    app.setStyle('windows')
+    app.setStyle('Fusion')
     MainWindow = QtWidgets.QMainWindow()
     ui = Ui_MainWindow()
     ui.setupUi(MainWindow)
