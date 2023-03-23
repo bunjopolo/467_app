@@ -162,7 +162,7 @@ class Ui_MainWindow(QMainWindow):
             MainWindow.time_quant.hide()
             MainWindow.quant_label.hide()
         elif MainWindow.comboBox.currentIndex() == 1: #First come first serve
-            MainWindow.runTime_edit.setReadOnly(False)
+            MainWindow.runTime_edit.setReadOnly(True)
             MainWindow.phas_edit.setReadOnly(False)
             MainWindow.period_edit.setReadOnly(False)
             MainWindow.execution_edit.setReadOnly(False)
@@ -182,7 +182,7 @@ class Ui_MainWindow(QMainWindow):
             MainWindow.clearAll()
 
         elif MainWindow.comboBox.currentIndex() == 3: #Rate monotonic
-            MainWindow.runTime_edit.setReadOnly(False)
+            MainWindow.runTime_edit.setReadOnly(True)
             MainWindow.phas_edit.setReadOnly(False)
             MainWindow.period_edit.setReadOnly(False)
             MainWindow.execution_edit.setReadOnly(False)
@@ -223,12 +223,12 @@ class Ui_MainWindow(QMainWindow):
         time_quant_arr = []
 
         #Grab the string from the runtime box and greate a integer variable for it
-        run_time = MainWindow.runTime_edit.text()
-        if not run_time:
-            MainWindow.graph_label.setText("Please enter a run time")
-            return
-        else:
-            run_time = int(run_time)
+        # run_time = MainWindow.runTime_edit.text()
+        # if not run_time:
+        #     MainWindow.graph_label.setText("Please enter a run time")
+        #     return
+        # else:
+        #     run_time = int(run_time)
 
         #check if the user entered numbers only
         for i in arrival:
@@ -251,9 +251,6 @@ class Ui_MainWindow(QMainWindow):
                 if number ==2 and i != " " and  not i.isdigit():
                     MainWindow.graph_label.setText("Please enter numbers only")              
                     return
-
-
-
 
         #Check if any of the fields are empty and if they are then populate it with 0's of the size of one of the non empty fields
         if not arrival:
@@ -324,6 +321,12 @@ class Ui_MainWindow(QMainWindow):
         if len(arrival_arr) != len(period_arr) or len(arrival_arr) != len(execution_arr) or len(arrival_arr) != len(deadline_arr) or len(arrival_arr) != len(time_quant_arr):
             MainWindow.graph_label.setText("Please enter the same number of tasks for each field")
             return
+        
+        #Calculate the run time
+        if number ==1:
+            run_time = sum(execution_arr)
+        if number ==3:
+            run_time = 0
 
         #Create a dictionary to hold all the arrays
         processes = {'Run Time': run_time, 'arrival': arrival_arr, 'period': period_arr, 'execution': execution_arr, 'deadline': deadline_arr, 'time_quantum': time_quant_arr}
@@ -339,7 +342,7 @@ class Ui_MainWindow(QMainWindow):
             output, algorithm_name = MainWindow.fcfs(processes, run_time)
             print(output)
             print(algorithm_name)
-            MainWindow.gantt_chart(output, algorithm_name)
+            MainWindow.gantt_chart(output, algorithm_name, run_time)
 
         if number == 2:
             # Round robin
@@ -347,8 +350,9 @@ class Ui_MainWindow(QMainWindow):
             pass
         if number == 3:
             # Rate monotonic
-            print("Running Rate monotonic")
-            pass
+            algorithm_name = "Rate Monotonic"
+            output, run_time = MainWindow.RM(processes)
+            MainWindow.gantt_chart(output, algorithm_name,run_time)
         if number == 4:
             # Shortest job first
             print("Running Shortest job first")
@@ -368,9 +372,190 @@ class Ui_MainWindow(QMainWindow):
             numbers = string.split()
             numbers = [int(i) for i in numbers]
             return numbers
-        
-        
+    
+    #RM works (should test arrival time still)
+    def RM(self,info):
+      
+        tasks = [i for i in range(1, len(info['period'])+1)]
+        period = info['period']
+        executiontime = info['execution']
+        phase = info['arrival']
+        deadline = info['deadline']
+        stats =[]
+        currentstats = []
+        time = 0
+        currenttask = 1
+        newtasks = []
+        hyperperiod = 0
+        starttimes = []
+        completiontimes = []
+        newtask = False
+        taskorder = []
 
+
+        #execute 1 time unit of current task
+        def execute(time, currenttask, currentstats):
+            time = time + 1 #increments the time counter
+            column = [i[0] for i in currentstats] # find the current task
+            currentstats[column.index(currenttask)][3] -= 1 # decrements the execution time
+            return time, currenttask, currentstats
+            
+
+        # checks if current task is complete
+        def completecheck(time, currentstats, currenttask):
+            column = [i[0] for i in currentstats] # finds the current task in the sorted current stats list
+            if currentstats[column.index(currenttask)][3] == 0: # checks if the completion time is 0
+                currentstats[column.index(currenttask)][7].append(time) # adds current time to the finish time for the current task
+                return True, currentstats
+            else : # task is not finished
+                return False, currentstats
+            
+            
+        #checks if there is a new instance of a task and updates the execution time accordingly
+        def newinstance(time, currentstats):
+            for i in range(len(currentstats)): # loop through number of tasks
+                if (time - stats[i][1]) % stats[i][2] == 0 and time> stats[i][1]: # check if the current time is equal to the time of a new instance
+                    currentstats[i][3] = stats[i][3] #task i has a new instance and execution time is updated
+                    newtask = True
+                else :
+                    newtask = False # task i does not have a new instance
+            return newtask, currentstats
+        
+            
+        # create fucntion to check if any deadlines were missed
+        def deadlinemiss(currentstats):  
+            for i in range(len(currentstats)): #loop through number of tasks
+                for j in range(len(currentstats[i][7])): #loop through each occurrence of task
+                    if currentstats[i][7][j] > j*currentstats[1][2] or currentstats[i][7][j]> currentstats[i][1] + j*currentstats[i][2] + currentstats[i][4]:#check if completion time of task is greater than the next occurence or the next relative deadline
+                        currentstats[i][8].append(j) # instance j of task number i was missed
+                        return currentstats
+                        
+
+        # checks if there is a task that will preempt the current task
+        def preemptcheck(currenttask, currentstats):
+            for i in range(len(currentstats)): # loop the number of tasks
+                column = [i[0] for i in currentstats] # finds the current task in the sorted current stats list
+                if currentstats[i][2] < currentstats[column.index(currenttask)][2] and currentstats[i][3] != 0: # checks if there is a task with higher priority and is not finished
+                    return True
+            return False
+                
+
+        # sort the tasks based on period
+        def sorttasks(stats, currentstats):
+            currentstats.sort(key = lambda x: x[2]) # sorts the current stats by period
+            stats.sort(key = lambda x: x[2]) # sorts the stats by period
+
+
+        def findnexttask(currenttask, currentstats):
+            tempcurrenttask = currenttask # creates a temporary value for the current task
+            for i in range(len(currentstats)): # loop through the number of tasks
+                if currentstats[i][1] < time: # checks if the phase is less that the current time (does the task exist yet)
+                    if currentstats[i][3] != 0 : #checks if the execution time is not zero (is task incomplete)
+                        currenttask = currentstats[i][0] # sets the current task as the task number satisfying above requirements
+                        if currenttask != tempcurrenttask: # checks if new value for current task is same as the old task
+                            column = [i[0] for i in currentstats]
+                            currentstats[column.index(currenttask)][5].append(time) # updates the start time of the new task 
+                        return currenttask, currentstats, tempcurrenttask
+                    else:
+                        continue # pass to next task
+                else:
+                    continue #  ppass to next task
+            return -1, currentstats, tempcurrenttask # returns a negative 1 if there are no tasks available
+
+
+        # define funciton to increment time and wait if there are no tasks available
+        def wait(time):
+            time += 1
+            return time
+
+
+        # create funciton for finding the least common multiple     
+        def find_lcm(numbers):
+            def gcd(a, b):
+                if b == 0:
+                    return a
+                return gcd(b, a % b)
+
+            lcm = 1
+            for number in numbers:
+                lcm = (lcm * number) // gcd(lcm, number)
+
+            return lcm
+
+
+        #create stats list
+        for i in range(len(tasks)):
+            stats.append([tasks[i], phase[i], period[i], executiontime[i], deadline[i], [], []]) # creates an array of all the information about the tasks
+            currentstats.append([tasks[i], phase[i], period[i], executiontime[i], deadline[i], [], [], [], []])# creates an array of all the information about the tasks that will be updated
+
+
+        # sorts the stats by the period
+        stats.sort(key = lambda x: x[2])
+        currentstats.sort(key = lambda x: x[2])
+
+
+        # initializes new tasks to false
+        for i in range(len(currentstats)):
+            newtasks.append(False)
+
+
+        hyperperiod = find_lcm(period) # find the hyperperiod
+        currenttask = currentstats[0][0] # initializes the current task to the fist in the sorted list
+            
+        column = [i[0] for i in currentstats]
+        if currentstats[column.index(currenttask)][1] == 0:
+            currentstats[column.index(currenttask)][5].append(time)
+
+        if currentstats[column.index(currenttask)][1] > 0:
+            time = currentstats[column.index(currenttask)][1]
+            currentstats[column.index(currenttask)][5].append(time)
+            
+
+        while(time< hyperperiod):
+            taskorder.append(currenttask)
+            time, currenttask, currentstats = execute(time, currenttask, currentstats) # execute current task for one time unit
+
+            done, currentstats = completecheck(time, currentstats, currenttask) # checks if current tasks is complete
+            
+            newtask, currentstats = newinstance(time, currentstats) # checks if there is a new instance of a task
+
+            preempt = preemptcheck(currenttask, currentstats) # checks if there is a higher priority task  
+            
+            temp, currentstats, previous = findnexttask(currenttask, currentstats) # find the next task to be executed
+            column = [i[0] for i in currentstats] # find the current task in the sorted list
+
+
+            if temp != previous: # checks if the new task is differnt from the previous task
+                column = [i[0] for i in currentstats] # find the current task in the sorted list
+                currentstats[column.index(currenttask)][6].append(time) # updates the end time for the previous task ######################################################################################################
+            if temp ==-1: # checks if there are no new tasks to execute
+                while (temp == -1): 
+                    time = wait(time) # sit idle for one time unit
+                    newtask, currentstats = newinstance(time, currentstats) # check for a new instance of a task
+                    temp, currentstats, previous = findnexttask(currenttask, currentstats) # find what the next task is
+                currenttask = temp
+            else :
+                currenttask = temp
+            if currentstats[0][5][-1] == hyperperiod: # checks if the current task is complete and remove last element
+                currentstats[0][5].pop() # remove the last element of the end time list
+
+            
+                        
+                        
+        currentstats = deadlinemiss(currentstats)    
+
+        outputs = []
+        #reorder by task number
+        currentstats.sort(key = lambda x: x[0])
+        for i in range(len(currentstats)):
+            outputs.append([])
+            for j in range(len(currentstats[i][5])):
+                outputs[i].append([currentstats[i][5][j], currentstats[i][6][j]])
+        print(currentstats)
+                
+        return outputs, hyperperiod
+
+    #works without period
     def fcfs(self,processes, runtime):
         
         algorithm_name = "First Come First Serve (FCFS)"
@@ -382,7 +567,7 @@ class Ui_MainWindow(QMainWindow):
         scheduled = None
 
         while current_time < runtime:
-            current_time +=1
+            
             for i in range(n):
                 #task not arrived yet try next task
                 if processes['arrival'][i] > current_time:
@@ -407,11 +592,10 @@ class Ui_MainWindow(QMainWindow):
             # if no tasks were scheduled in this iteration, incriment time
             if not scheduled:
                 current_time +=1
-            return output, algorithm_name
+        return output, algorithm_name
 
-        
-
-    def gantt_chart(MainWindow,output, algorithm_name):
+    #works
+    def gantt_chart(MainWindow,output, algorithm_name,hyperperiod):
             """
             output has to be in the format [[start_time, end_time], [start_time, end_time], ...]
             """
@@ -426,7 +610,7 @@ class Ui_MainWindow(QMainWindow):
                     start_time, end_time = output[i][j]
                     gantt_chart.broken_barh([(start_time, end_time - start_time)], (0, 0.5), color=colors[i])
                     gantt_chart.text((start_time + end_time)/2, 0.25, f"T{i+1}", ha="center", va="center")
-            gantt_chart.set_xlim(0, end_time)
+            gantt_chart.set_xlim(0, hyperperiod)
             #plt.show()
             
             #canvas = FigureCanvas(fig)
