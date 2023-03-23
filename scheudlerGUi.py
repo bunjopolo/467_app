@@ -89,6 +89,7 @@ class Ui_MainWindow(QMainWindow):
         self.pushButton.setGeometry(QtCore.QRect(270, size.height()-200, 100, 51)) #set the size and location of the push button
         self.pushButton.setObjectName("pushButton") #set the name of the push button
         self.pushButton.clicked.connect(lambda : self.schedule()) #connect the push button to the schedule function
+        
 
         self.clearButton = QtWidgets.QPushButton(self.centralwidget) #set the clear button
         self.clearButton.setGeometry(QtCore.QRect(400, size.height()-200, 100, 51)) #set the size and location of the clear button
@@ -103,7 +104,7 @@ class Ui_MainWindow(QMainWindow):
         self.comboBox.addItem("")
         self.comboBox.addItem("")
         self.comboBox.addItem("")
-        self.comboBox.currentIndexChanged.connect(lambda : self.updateUI(MainWindow))
+        self.comboBox.currentIndexChanged.connect(lambda : self.updateUI())
 
         self.time_quant = QtWidgets.QLineEdit(self.centralwidget)
         self.time_quant.setGeometry(QtCore.QRect(120, size.height()-230, 581, 21))
@@ -118,8 +119,6 @@ class Ui_MainWindow(QMainWindow):
         self.quant_label.setText("Time Quantum")
         self.quant_label.hide()
 
-
-
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(MainWindow)
         self.menubar.setGeometry(QtCore.QRect(0, 0, 830, 24))
@@ -131,7 +130,7 @@ class Ui_MainWindow(QMainWindow):
 
         self.retranslateUi(MainWindow)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
-        self.updateUI(MainWindow)
+        self.updateUI()
 
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
@@ -150,217 +149,230 @@ class Ui_MainWindow(QMainWindow):
         self.comboBox.setItemText(2, _translate("MainWindow", "Round robin"))
         self.comboBox.setItemText(3, _translate("MainWindow", "Rate Monotonic"))
         self.comboBox.setItemText(4, _translate("MainWindow", "Shortest job first"))
-        
         self.comboBox.isEditable()
 
-    def updateUI(self,MainWindow):
+    def updateUI(MainWindow):
         #update the windwow based on what combo box is selected
-        if self.comboBox.currentIndex() == 0: #Pick an algorithm
-            self.runTime_edit.setReadOnly(True)
-            self.phas_edit.setReadOnly(True)
-            self.period_edit.setReadOnly(True)
-            self.execution_edit.setReadOnly(True)
-            self.deadline_edit.setReadOnly(True)
-            self.time_quant.hide()
-            self.quant_label.hide()
+        if MainWindow.comboBox.currentIndex() == 0: #Pick an algorithm
+            MainWindow.runTime_edit.setReadOnly(True)
+            MainWindow.phas_edit.setReadOnly(True)
+            MainWindow.period_edit.setReadOnly(True)
+            MainWindow.execution_edit.setReadOnly(True)
+            MainWindow.deadline_edit.setReadOnly(True)
+            MainWindow.time_quant.hide()
+            MainWindow.quant_label.hide()
+        elif MainWindow.comboBox.currentIndex() == 1: #First come first serve
+            MainWindow.runTime_edit.setReadOnly(False)
+            MainWindow.phas_edit.setReadOnly(False)
+            MainWindow.period_edit.setReadOnly(False)
+            MainWindow.execution_edit.setReadOnly(False)
+            MainWindow.deadline_edit.setReadOnly(False)
+            MainWindow.time_quant.hide()
+            MainWindow.quant_label.hide()
+            MainWindow.clearAll()
+
+        elif MainWindow.comboBox.currentIndex() == 2: #Round robin
+            MainWindow.runTime_edit.setReadOnly(False)
+            MainWindow.phas_edit.setReadOnly(False)
+            MainWindow.period_edit.setReadOnly(False)
+            MainWindow.execution_edit.setReadOnly(False)
+            MainWindow.deadline_edit.setReadOnly(False)
+            MainWindow.time_quant.show()
+            MainWindow.quant_label.show()
+            MainWindow.clearAll()
+
+        elif MainWindow.comboBox.currentIndex() == 3: #Rate monotonic
+            MainWindow.runTime_edit.setReadOnly(False)
+            MainWindow.phas_edit.setReadOnly(False)
+            MainWindow.period_edit.setReadOnly(False)
+            MainWindow.execution_edit.setReadOnly(False)
+            MainWindow.deadline_edit.setReadOnly(False)
+            MainWindow.time_quant.hide()
+            MainWindow.quant_label.hide()
+            MainWindow.clearAll()
             
-            
-
-        if self.comboBox.currentIndex() == 1: #First come first serve
-            self.runTime_edit.setReadOnly(False)
-            self.phas_edit.setReadOnly(False)
-            self.period_edit.setReadOnly(False)
-            self.execution_edit.setReadOnly(False)
-            self.deadline_edit.setReadOnly(False)
-            self.time_quant.hide()
-            self.quant_label.hide()
-            self.clearAll()
-
-        if self.comboBox.currentIndex() == 2: #Round robin
-            self.runTime_edit.setReadOnly(False)
-            self.phas_edit.setReadOnly(False)
-            self.period_edit.setReadOnly(False)
-            self.execution_edit.setReadOnly(False)
-            self.deadline_edit.setReadOnly(False)
-            self.time_quant.show()
-            self.quant_label.show()
-            self.clearAll()
-
-        if self.comboBox.currentIndex() == 3: #Rate monotonic
-            self.runTime_edit.setReadOnly(False)
-            self.phas_edit.setReadOnly(False)
-            self.period_edit.setReadOnly(False)
-            self.execution_edit.setReadOnly(False)
-            self.deadline_edit.setReadOnly(False)
-            self.time_quant.hide()
-            self.quant_label.hide()
-            self.clearAll()
-            
-        if self.comboBox.currentIndex() == 4: #Shortest job first
-            self.runTime_edit.setReadOnly(False)
-            self.phas_edit.setReadOnly(False)
-            self.period_edit.setReadOnly(False)
-            self.execution_edit.setReadOnly(False)
-            self.deadline_edit.setReadOnly(False)
-            self.time_quant.hide()
-            self.quant_label.hide()
-            self.clearAll()
-
-
-
+        elif MainWindow.comboBox.currentIndex() == 4: #Shortest job first
+            MainWindow.runTime_edit.setReadOnly(False)
+            MainWindow.phas_edit.setReadOnly(False)
+            MainWindow.period_edit.setReadOnly(False)
+            MainWindow.execution_edit.setReadOnly(False)
+            MainWindow.deadline_edit.setReadOnly(False)
+            MainWindow.time_quant.hide()
+            MainWindow.quant_label.hide()
+            MainWindow.clearAll()
 
     def schedule(MainWindow):
         
-            number = MainWindow.comboBox.currentIndex()
-            #grab the string from the phase box and create an array for phase
-            arrival = MainWindow.phas_edit.text()
-            arrival_arr = []
-            #grab the string from the period box and create an array for period
-            period = MainWindow.period_edit.text()
-            period_arr = []
-            #grab the string from the execution box and create an array for execution
-            execution = MainWindow.execution_edit.text()
-            execution_arr = []
-            #grab the string from the deadline box and create an array for deadline
-            deadline = MainWindow.deadline_edit.text()
-            deadline_arr = []
-            #grab the string from the time quantum box and create an array for time quantum
-            time_quant = MainWindow.time_quant.text()
-            time_quant_arr = []
+        number = MainWindow.comboBox.currentIndex()
+        print(number)
+        #grab the string from the phase box and create an array for phase
+        arrival = MainWindow.phas_edit.text()
+        arrival_arr = []
+        print(arrival_arr)
+        #grab the string from the period box and create an array for period
+        period = MainWindow.period_edit.text()
+        period_arr = []
+        #grab the string from the execution box and create an array for execution
+        execution = MainWindow.execution_edit.text()
+        execution_arr = []
+        #grab the string from the deadline box and create an array for deadline
+        deadline = MainWindow.deadline_edit.text()
+        deadline_arr = []
+        #grab the string from the time quantum box and create an array for time quantum
+        time_quant = MainWindow.time_quant.text()
+        time_quant_arr = []
 
-            #Grab the string from the runtime box and greate a integer variable for it
-            run_time = MainWindow.runTime_edit.text()
-            if not run_time:
-                MainWindow.graph_label.setText("Please enter a run time")
+        #Grab the string from the runtime box and greate a integer variable for it
+        run_time = MainWindow.runTime_edit.text()
+        if not run_time:
+            MainWindow.graph_label.setText("Please enter a run time")
+            return
+        else:
+            run_time = int(run_time)
+
+        #check if the user entered numbers only
+        for i in arrival:
+            if i != " " and  not i.isdigit():
+                MainWindow.graph_label.setText("Please enter numbers only")
                 return
-            else:
-                run_time = int(run_time)
-
-            #check if the user entered numbers only
-            for i in arrival:
-                if i != " " and  not i.isdigit():
-                    MainWindow.graph_label.setText("Please enter numbers only")
-                    return
-            for i in period:
-                if i != " " and  not i.isdigit():
-                    MainWindow.graph_label.setText("Please enter numbers only")
-                    return
-            for i in execution:
-                if i != " " and  not i.isdigit():
-                    MainWindow.graph_label.setText("Please enter numbers only")                   
-                    return
-            for i in deadline:
-                if i != " " and  not i.isdigit():
+        for i in period:
+            if i != " " and  not i.isdigit():
+                MainWindow.graph_label.setText("Please enter numbers only")
+                return
+        for i in execution:
+            if i != " " and  not i.isdigit():
+                MainWindow.graph_label.setText("Please enter numbers only")                   
+                return
+        for i in deadline:
+            if i != " " and  not i.isdigit():
+                MainWindow.graph_label.setText("Please enter numbers only")              
+                return
+            for i in time_quant:
+                if number ==2 and i != " " and  not i.isdigit():
                     MainWindow.graph_label.setText("Please enter numbers only")              
                     return
-                for i in time_quant:
-                    if number ==2 and i != " " and  not i.isdigit():
-                        MainWindow.graph_label.setText("Please enter numbers only")              
-                        return
 
 
-            #check if the user entered the same number of tasks for each field
-            if len(arrival_arr) != len(period_arr) or len(period_arr) != len(execution_arr) or len(execution_arr) != len(deadline_arr):
-                MainWindow.graph_label.setText("Please enter the same number of tasks for each field")
-                return
 
-            #Check if any of the fields are empty and if they are then populate it with 0's of the size of one of the non empty fields
-            if not arrival:
-                if len(period_arr) != 0:
-                    arrival_arr = [0]*len(period_arr)
-                elif len(execution_arr) != 0:
-                    arrival_arr = [0]*len(execution_arr)
-                elif len(deadline_arr) != 0:
-                    arrival_arr = [0]*len(deadline_arr)
-                else:
-                    MainWindow.graph_label.setText("Please enter at least one task")
+
+        #Check if any of the fields are empty and if they are then populate it with 0's of the size of one of the non empty fields
+        if not arrival:
+            if len(period_arr) != 0:
+                arrival_arr = [0]*len(period_arr)
+            elif len(execution_arr) != 0:
+                arrival_arr = [0]*len(execution_arr)
+            elif len(deadline_arr) != 0:
+                arrival_arr = [0]*len(deadline_arr)
             else:
-                arrival_arr = MainWindow.get_numbers(arrival)
+                MainWindow.graph_label.setText("Please enter at least one task")
+        else:
+            arrival_arr = MainWindow.get_numbers(arrival)
+            
+        
+        if not period:
+            if len(arrival_arr) != 0:
+                period_arr = [0]*len(arrival_arr)
+            elif len(execution_arr) != 0:
+                period_arr = [0]*len(execution_arr)
+            elif len(deadline_arr) != 0:
+                period_arr = [0]*len(deadline_arr)
+            else:
+                MainWindow.graph_label.setText("Please enter at least one task")
+        else:
+            period_arr = MainWindow.get_numbers(period)
                 
-            
-            if not period:
-                if len(arrival_arr) != 0:
-                    period_arr = [0]*len(arrival_arr)
-                elif len(execution_arr) != 0:
-                    period_arr = [0]*len(execution_arr)
-                elif len(deadline_arr) != 0:
-                    period_arr = [0]*len(deadline_arr)
-                else:
-                    MainWindow.graph_label.setText("Please enter at least one task")
+        
+        if not execution:
+            if len(arrival_arr) != 0:
+                execution_arr = [0]*len(arrival_arr)
+            elif len(period_arr) != 0:
+                execution_arr = [0]*len(period_arr)
+            elif len(deadline_arr) != 0:
+                execution_arr = [0]*len(deadline_arr)
             else:
-                period_arr = MainWindow.get_numbers(period)
-                    
-            
-            if not execution:
-                if len(arrival_arr) != 0:
-                    execution_arr = [0]*len(arrival_arr)
-                elif len(period_arr) != 0:
-                    execution_arr = [0]*len(period_arr)
-                elif len(deadline_arr) != 0:
-                    execution_arr = [0]*len(deadline_arr)
-                else:
-                    MainWindow.graph_label.setText("Please enter at least one task")
+                MainWindow.graph_label.setText("Please enter at least one task")
+        else:
+            execution_arr = MainWindow.get_numbers(execution)
+                
+        if not deadline:
+            if len(arrival_arr) != 0:
+                deadline_arr = [0]*len(arrival_arr)
+            elif len(period_arr) != 0:
+                deadline_arr = [0]*len(period_arr)
+            elif len(execution_arr) != 0:
+                deadline_arr = [0]*len(execution_arr)
             else:
-                execution_arr = MainWindow.get_numbers(execution)
-                    
-            if not deadline:
-                if len(arrival_arr) != 0:
-                    deadline_arr = [0]*len(arrival_arr)
-                elif len(period_arr) != 0:
-                    deadline_arr = [0]*len(period_arr)
-                elif len(execution_arr) != 0:
-                    deadline_arr = [0]*len(execution_arr)
-                else:
-                    MainWindow.graph_label.setText("Please enter at least one task")
+                MainWindow.graph_label.setText("Please enter at least one task")
+        else:
+            deadline_arr = MainWindow.get_numbers(deadline)
+        
+        if not time_quant:
+            if len(arrival_arr) != 0:
+                time_quant_arr = [0]*len(arrival_arr)
+            elif len(period_arr) != 0:
+                time_quant_arr = [0]*len(period_arr)
+            elif len(execution_arr) != 0:
+                time_quant_arr = [0]*len(execution_arr)
+            elif len(deadline_arr) != 0:
+                time_quant_arr = [0]*len(deadline_arr)
             else:
-                deadline_arr = MainWindow.get_numbers(deadline)
-            
-            if not time_quant:
-                if len(arrival_arr) != 0:
-                    time_quant_arr = [0]*len(arrival_arr)
-                elif len(period_arr) != 0:
-                    time_quant_arr = [0]*len(period_arr)
-                elif len(execution_arr) != 0:
-                    time_quant_arr = [0]*len(execution_arr)
-                elif len(deadline_arr) != 0:
-                    time_quant_arr = [0]*len(deadline_arr)
-                else:
-                    MainWindow.graph_label.setText("Please enter at least one task")
-            else:
-                time_quant_arr = MainWindow.get_numbers(time_quant)
+                MainWindow.graph_label.setText("Please enter at least one task")
+        else:
+            time_quant_arr = MainWindow.get_numbers(time_quant)
+        
+        #Check if the nummber of non zero elements in each array is the same
+        if len(arrival_arr) != len(period_arr) or len(arrival_arr) != len(execution_arr) or len(arrival_arr) != len(deadline_arr) or len(arrival_arr) != len(time_quant_arr):
+            MainWindow.graph_label.setText("Please enter the same number of tasks for each field")
+            return
 
-            #Create a dictionary to hold all the arrays
-            processes = {'Run Time': run_time, 'arrival': arrival_arr, 'period': period_arr, 'execution': execution_arr, 'deadline': deadline_arr, 'time_quantum': time_quant_arr}
-            print(processes)
-            #Get the number from the combobox and run the corresponding algorithm
-            if number ==0:
-                MainWindow.graph_label.setText("Please pick an algorithm in the drop down list")
-                return
+        #Create a dictionary to hold all the arrays
+        processes = {'Run Time': run_time, 'arrival': arrival_arr, 'period': period_arr, 'execution': execution_arr, 'deadline': deadline_arr, 'time_quantum': time_quant_arr}
+        print(processes)
+        #Get the number from the combobox and run the corresponding algorithm
+        if number ==0:
+            MainWindow.graph_label.setText("Please pick an algorithm in the drop down list")
+            return
 
-            if number == 1:
-                # First come first serve
-                print("Running First come first serve")
-                output, algorithm_name = MainWindow.fcfs(processes, run_time)
-                print(output)
-                print(algorithm_name)
-
-            if number == 2:
-                # Round robin
-                print("Running Round robin")
-                pass
-            if number == 3:
-                # Rate monotonic
-                print("Running Rate monotonic")
-                pass
-            if number == 4:
-                # Shortest job first
-                print("Running Shortest job first")
-                pass
-            
-            #Create a graph
+        if number == 1:
+            # First come first serve
+            print("Running First come first serve")
+            output, algorithm_name = MainWindow.fcfs(processes, run_time)
+            print(output)
+            print(algorithm_name)
             MainWindow.gantt_chart(output, algorithm_name)
 
+        if number == 2:
+            # Round robin
+            print("Running Round robin")
+            pass
+        if number == 3:
+            # Rate monotonic
+            print("Running Rate monotonic")
+            pass
+        if number == 4:
+            # Shortest job first
+            print("Running Shortest job first")
+            pass
+
+    def clearAll(MainWindow):
+        MainWindow.runTime_edit.setText("")
+        MainWindow.phas_edit.setText("")
+        MainWindow.period_edit.setText("")
+        MainWindow.execution_edit.setText("")
+        MainWindow.deadline_edit.setText("")
+        MainWindow.time_quant.setText("")
+        MainWindow.graph_label.setPixmap(QtGui.QPixmap())
+
+    def get_numbers(self,string):
+            string = string.strip()
+            numbers = string.split()
+            numbers = [int(i) for i in numbers]
+            return numbers
+        
+        
+
     def fcfs(self,processes, runtime):
+        
         algorithm_name = "First Come First Serve (FCFS)"
         dl_missed = []
         n = len(processes['arrival'])
@@ -395,8 +407,9 @@ class Ui_MainWindow(QMainWindow):
             # if no tasks were scheduled in this iteration, incriment time
             if not scheduled:
                 current_time +=1
-            
-        return output, algorithm_name
+            return output, algorithm_name
+
+        
 
     def gantt_chart(MainWindow,output, algorithm_name):
             """
@@ -419,21 +432,7 @@ class Ui_MainWindow(QMainWindow):
             #canvas = FigureCanvas(fig)
             fig.savefig('/Users/spencermarchand/Documents/VS_code/Python/467_project/img_sav')
             MainWindow.graph_label.setPixmap(QtGui.QPixmap('/Users/spencermarchand/Documents/VS_code/Python/467_project/img_sav.png'))
-    
-    def clearAll(MainWindow):
-        MainWindow.runTime_edit.setText("")
-        MainWindow.phas_edit.setText("")
-        MainWindow.period_edit.setText("")
-        MainWindow.execution_edit.setText("")
-        MainWindow.deadline_edit.setText("")
-        MainWindow.time_quant.setText("")
-        MainWindow.graph_label.setPixmap(QtGui.QPixmap())
 
-    def get_numbers(self,string):
-        string = string.strip()
-        numbers = string.split()
-        numbers = [int(i) for i in numbers]
-        return numbers
 
 if __name__ == "__main__":
     import sys
