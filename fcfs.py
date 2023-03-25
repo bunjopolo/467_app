@@ -2,7 +2,7 @@ import random
 import matplotlib.pyplot as plt
 import queue
 
-fcfs_processes = {'arrival': [0, 4], 'period': [8, 3], 'execution': [2, 1], 'deadline': None}
+fcfs_processes = {'arrival': [0, 4, 7], 'period': [8, 3, 5], 'execution': [2, 1, 5], 'deadline': None}
 
 
 
@@ -15,35 +15,37 @@ def fcfs(processes, runtime):
     print(n)
     output = [[] for _ in range(n)]
     current_time = 0 
-    periods = processes['period']
 
-    while current_time < runtime:
+
+    while current_time <= runtime:
+
         scheduled = False
         for i in range(n):
             #task not arrived yet try next task
             if processes['arrival'][i] > current_time:
                 continue
-
             #a task is ready to run
-            elif current_time >= processes['period'][i] and processes['arrival'][i] <= current_time:
+            elif processes['arrival'][i] <= current_time:
+        
                 #get start time and end time of current task instance
                 start_time = current_time
                 end_time = start_time + processes['execution'][i]
-
                 #add task instance to output
                 output[i].append([start_time, end_time])
-                current_time = end_time 
-                #incriment period of current task to set new deadline for next instance
-                processes['period'][i] += periods[i]
+                current_time = end_time
+                #indicate that a task was scheduled in this iteration 
                 scheduled = True
+
 
         # if no tasks were scheduled in this iteration, incriment time
         if not scheduled:
             current_time +=1
+
+
     return output, algorithm_name
 
 
-def gantt_chart(output, algorithm_name):
+def gantt_chart(output, algorithm_name, runtime):
     """
     output has to be in the format [[start_time, end_time], [start_time, end_time], ...]
     """
@@ -58,11 +60,11 @@ def gantt_chart(output, algorithm_name):
             start_time, end_time = output[i][j]
             gantt_chart.broken_barh([(start_time, end_time - start_time)], (0, 0.5), color=colors[i])
             gantt_chart.text((start_time + end_time)/2, 0.25, f"T{i+1}", ha="center", va="center")
-    gantt_chart.set_xlim(0, end_time)
+    gantt_chart.set_xlim(0, runtime)
     plt.show()
 
 output, algorithm_name = fcfs(fcfs_processes, runtime)
-gantt_chart(output, algorithm_name)
+gantt_chart(output, algorithm_name, runtime)
 
 
 
