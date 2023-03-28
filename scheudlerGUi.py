@@ -10,6 +10,13 @@ import matplotlib.pyplot as plt
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
 from PIL import Image
+import sys
+import random
+from PyQt6.QtGui import QPixmap
+from PyQt6.QtWidgets import QApplication, QMainWindow, QLabel, QVBoxLayout, QFrame, QPushButton
+from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
+from matplotlib.figure import Figure
+
 
 
 class Ui_MainWindow(QMainWindow):
@@ -25,6 +32,15 @@ class Ui_MainWindow(QMainWindow):
         self.centralwidget.setObjectName("centralwidget") #set the name of the central widget
 
         
+        layout = QVBoxLayout(self)
+        self.frame = QFrame(self)
+        layout.addWidget(self.frame)
+        self.figure = Figure() #set the figure
+        self.canvas = FigureCanvas(self.figure) #set the canvas
+        self.frame.setLayout(QVBoxLayout(self.frame))
+        self.frame.layout().addWidget(self.canvas)
+        
+
         self.graph_label = QtWidgets.QLabel(self.centralwidget) #set the graph label
         self.graph_label.setGeometry(QtCore.QRect(20, 10, 791, size.height()-450)) #set the size and location of the graph label
         self.graph_label.setScaledContents(True) #scale the graph label to fit the size of the graph
@@ -85,6 +101,20 @@ class Ui_MainWindow(QMainWindow):
         # self.time_quant.setGeometry(QtCore.QRect(120, size.height()-230, 581, 21))
         # self.time_quant.setObjectName("time_quant")
 
+        #done and in right position
+        self.time_quant = QtWidgets.QLineEdit(self.centralwidget) #set the time quantum edit
+        self.time_quant.setGeometry(QtCore.QRect(120, size.height()-230, 581, 21)) #set the size and location of the time quantum edit
+        self.time_quant.setObjectName("time_quant") #set the name of the time quantum edit
+        self.time_quant.setValidator(QtGui.QIntValidator())
+        #hide the time quantum
+        self.time_quant.hide() #hide the time quantum edit
+        
+        self.quant_label = QtWidgets.QLabel(self.centralwidget) #set the time quantum label
+        self.quant_label.setGeometry(QtCore.QRect(10, size.height()-230, 101, 20)) #set the size and location of the time quantum label
+        self.quant_label.setObjectName("time_label") #set the name of the time quantum label
+        self.quant_label.setText("Time Quantum") #set the text of the time quantum label
+        self.quant_label.hide() #hide the time quantum label
+
         self.pushButton = QtWidgets.QPushButton(self.centralwidget) #set the push button
         self.pushButton.setGeometry(QtCore.QRect(270, size.height()-200, 100, 51)) #set the size and location of the push button
         self.pushButton.setObjectName("pushButton") #set the name of the push button
@@ -104,55 +134,43 @@ class Ui_MainWindow(QMainWindow):
         self.comboBox.addItem("")
         self.comboBox.addItem("")
         self.comboBox.addItem("")
-        self.comboBox.currentIndexChanged.connect(lambda : self.updateUI())
+        self.comboBox.currentIndexChanged.connect(lambda : self.updateUI()) #connect the combo box to the updateUI function
 
-        self.time_quant = QtWidgets.QLineEdit(self.centralwidget)
-        self.time_quant.setGeometry(QtCore.QRect(120, size.height()-230, 581, 21))
-        self.time_quant.setObjectName("time_quant")
-       
-        #hide the time quantum
-        self.time_quant.hide()
-        
-        self.quant_label = QtWidgets.QLabel(self.centralwidget)
-        self.quant_label.setGeometry(QtCore.QRect(10, size.height()-230, 101, 20))
-        self.quant_label.setObjectName("time_label")
-        self.quant_label.setText("Time Quantum")
-        self.quant_label.hide()
+        MainWindow.setCentralWidget(self.centralwidget) #set the central widget of the window
+        self.menubar = QtWidgets.QMenuBar(MainWindow) #set the menu bar
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 830, 24)) #set the size and location of the menu bar
+        self.menubar.setObjectName("menubar") #set the name of the menu bar
+        MainWindow.setMenuBar(self.menubar) #set the menu bar of the window
+        self.statusbar = QtWidgets.QStatusBar(MainWindow) #set the status bar
+        self.statusbar.setObjectName("statusbar") #set the name of the status bar
+        MainWindow.setStatusBar(self.statusbar) #set the status bar of the window
 
-        MainWindow.setCentralWidget(self.centralwidget)
-        self.menubar = QtWidgets.QMenuBar(MainWindow)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 830, 24))
-        self.menubar.setObjectName("menubar")
-        MainWindow.setMenuBar(self.menubar)
-        self.statusbar = QtWidgets.QStatusBar(MainWindow)
-        self.statusbar.setObjectName("statusbar")
-        MainWindow.setStatusBar(self.statusbar)
-
-        self.retranslateUi(MainWindow)
-        QtCore.QMetaObject.connectSlotsByName(MainWindow)
-        self.updateUI()
+        self.retranslateUi(MainWindow) #call the retranslateUi function
+        QtCore.QMetaObject.connectSlotsByName(MainWindow) #connect the slots to the names
+        self.updateUI() #call the updateUI function        
 
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
-        MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow"))
-        self.phase_label.setText(_translate("MainWindow", "Arrival Time"))
-        self.period_label.setText(_translate("MainWindow", "Period"))
-        self.execution_label.setText(_translate("MainWindow", "Execution Time"))
-        self.deadline_label.setText(_translate("MainWindow", "Deadline"))
-        self.runTime_label.setText(_translate("MainWindow", "Run Time"))
+        MainWindow.setWindowTitle(_translate("MainWindow", "Scheduler")) #set the title of the window
+        self.phase_label.setText(_translate("MainWindow", "Arrival Time")) #set the text of the phase label
+        self.period_label.setText(_translate("MainWindow", "Period")) #set the text of the period label
+        self.execution_label.setText(_translate("MainWindow", "Execution Time")) #set the text of the execution label
+        self.deadline_label.setText(_translate("MainWindow", "Deadline")) #set the text of the deadline label
+        self.runTime_label.setText(_translate("MainWindow", "Run Time")) #set the text of the run time label
         
         # self.time_label.setText(_translate("MainWindow", "Time Quantum"))
-        self.pushButton.setText(_translate("MainWindow", "Schedule! "))
-        self.clearButton.setText(_translate("MainWindow", "Clear"))
-        self.comboBox.setItemText(0, _translate("MainWindow", "Pick an Algorithm"))
-        self.comboBox.setItemText(1, _translate("MainWindow", "First come first serve"))
-        self.comboBox.setItemText(2, _translate("MainWindow", "Round robin"))
-        self.comboBox.setItemText(3, _translate("MainWindow", "Rate Monotonic"))
-        self.comboBox.setItemText(4, _translate("MainWindow", "Shortest job first"))
-        self.comboBox.isEditable()
+        self.pushButton.setText(_translate("MainWindow", "Schedule! ")) #set the text of the push button
+        self.clearButton.setText(_translate("MainWindow", "Clear")) #set the text of the clear button
+        self.comboBox.setItemText(0, _translate("MainWindow", "Pick an Algorithm")) #set the text of the combo box
+        self.comboBox.setItemText(1, _translate("MainWindow", "First come first serve")) #set the text of the combo box
+        self.comboBox.setItemText(2, _translate("MainWindow", "Round robin")) #set the text of the combo box
+        self.comboBox.setItemText(3, _translate("MainWindow", "Rate Monotonic")) #set the text of the combo box
+        self.comboBox.setItemText(4, _translate("MainWindow", "Shortest job first")) #set the text of the combo box
+        self.comboBox.isEditable() #set the combo box to not editable
 
     def updateUI(MainWindow):
         #update the windwow based on what combo box is selected
+        
         if MainWindow.comboBox.currentIndex() == 0: #Pick an algorithm
             MainWindow.runTime_edit.setReadOnly(True)
             MainWindow.phas_edit.setReadOnly(True)
@@ -172,7 +190,7 @@ class Ui_MainWindow(QMainWindow):
             MainWindow.clearAll()
 
         elif MainWindow.comboBox.currentIndex() == 2: #Round robin
-            MainWindow.runTime_edit.setReadOnly(False)
+            MainWindow.runTime_edit.setReadOnly(True)
             MainWindow.phas_edit.setReadOnly(False)
             MainWindow.period_edit.setReadOnly(False)
             MainWindow.execution_edit.setReadOnly(False)
@@ -192,7 +210,7 @@ class Ui_MainWindow(QMainWindow):
             MainWindow.clearAll()
             
         elif MainWindow.comboBox.currentIndex() == 4: #Shortest job first
-            MainWindow.runTime_edit.setReadOnly(False)
+            MainWindow.runTime_edit.setReadOnly(True)
             MainWindow.phas_edit.setReadOnly(False)
             MainWindow.period_edit.setReadOnly(False)
             MainWindow.execution_edit.setReadOnly(False)
@@ -204,11 +222,9 @@ class Ui_MainWindow(QMainWindow):
     def schedule(MainWindow):
         
         number = MainWindow.comboBox.currentIndex()
-        print(number)
         #grab the string from the phase box and create an array for phase
         arrival = MainWindow.phas_edit.text()
         arrival_arr = []
-        print(arrival_arr)
         #grab the string from the period box and create an array for period
         period = MainWindow.period_edit.text()
         period_arr = []
@@ -220,7 +236,7 @@ class Ui_MainWindow(QMainWindow):
         deadline_arr = []
         #grab the string from the time quantum box and create an array for time quantum
         time_quant = MainWindow.time_quant.text()
-        time_quant_arr = []
+    
 
         #Grab the string from the runtime box and greate a integer variable for it
         # run_time = MainWindow.runTime_edit.text()
@@ -247,13 +263,13 @@ class Ui_MainWindow(QMainWindow):
             if i != " " and  not i.isdigit():
                 MainWindow.graph_label.setText("Please enter numbers only")              
                 return
-            for i in time_quant:
-                if number ==2 and i != " " and  not i.isdigit():
-                    MainWindow.graph_label.setText("Please enter numbers only")              
-                    return
+        # for i in time_quant:
+        #     if number ==2 and i != " " and  not i.isdigit():
+        #         MainWindow.graph_label.setText("Please enter numbers only")              
+        #         return
 
         #Check if any of the fields are empty and if they are then populate it with 0's of the size of one of the non empty fields
-        if not arrival:
+        if not arrival: 
             if len(period_arr) != 0:
                 arrival_arr = [0]*len(period_arr)
             elif len(execution_arr) != 0:
@@ -265,7 +281,6 @@ class Ui_MainWindow(QMainWindow):
         else:
             arrival_arr = MainWindow.get_numbers(arrival)
             
-        
         if not period:
             if len(arrival_arr) != 0:
                 period_arr = [0]*len(arrival_arr)
@@ -278,7 +293,6 @@ class Ui_MainWindow(QMainWindow):
         else:
             period_arr = MainWindow.get_numbers(period)
                 
-        
         if not execution:
             if len(arrival_arr) != 0:
                 execution_arr = [0]*len(arrival_arr)
@@ -302,35 +316,33 @@ class Ui_MainWindow(QMainWindow):
                 MainWindow.graph_label.setText("Please enter at least one task")
         else:
             deadline_arr = MainWindow.get_numbers(deadline)
-        
-        if not time_quant:
-            if len(arrival_arr) != 0:
-                time_quant_arr = [0]*len(arrival_arr)
-            elif len(period_arr) != 0:
-                time_quant_arr = [0]*len(period_arr)
-            elif len(execution_arr) != 0:
-                time_quant_arr = [0]*len(execution_arr)
-            elif len(deadline_arr) != 0:
-                time_quant_arr = [0]*len(deadline_arr)
+
+        #check if the user is trying to run round robin and if they are then check if they entered a time quantum if they did then set it what they inputed
+        if number ==2:
+            if not time_quant:
+                MainWindow.graph_label.setText("Please enter a time quantum")
+                return
             else:
-                MainWindow.graph_label.setText("Please enter at least one task")
+                time_quant_num = int(time_quant)
         else:
-            time_quant_arr = MainWindow.get_numbers(time_quant)
+            time_quant_num = 0
+    
         
         #Check if the nummber of non zero elements in each array is the same
-        if len(arrival_arr) != len(period_arr) or len(arrival_arr) != len(execution_arr) or len(arrival_arr) != len(deadline_arr) or len(arrival_arr) != len(time_quant_arr):
+        if len(arrival_arr) != len(period_arr) or len(arrival_arr) != len(execution_arr) or len(arrival_arr) != len(deadline_arr) or len(period_arr)!= len(execution_arr) or len(period_arr)!= len(deadline_arr) or len(execution_arr)!= len(deadline_arr):
             MainWindow.graph_label.setText("Please enter the same number of tasks for each field")
             return
         
         #Calculate the run time
-        if number ==1:
+        if number ==1 or number ==2:
             run_time = sum(execution_arr)
         if number ==3:
             run_time = 0
 
         #Create a dictionary to hold all the arrays
-        processes = {'Run Time': run_time, 'arrival': arrival_arr, 'period': period_arr, 'execution': execution_arr, 'deadline': deadline_arr, 'time_quantum': time_quant_arr}
+        processes = {'Run Time': run_time, 'arrival': arrival_arr, 'period': period_arr, 'execution': execution_arr, 'deadline': deadline_arr, 'quantum': time_quant_num}
         print(processes)
+
         #Get the number from the combobox and run the corresponding algorithm
         if number ==0:
             MainWindow.graph_label.setText("Please pick an algorithm in the drop down list")
@@ -346,10 +358,15 @@ class Ui_MainWindow(QMainWindow):
 
         if number == 2:
             # Round robin
-            print("Running Round robin")
-            pass
+            output, algorithm_name, deadlinesMissed = MainWindow.rr(processes, run_time)
+            MainWindow.gantt_chart_rr(output, algorithm_name, run_time, deadlinesMissed)
+            
         if number == 3:
             # Rate monotonic
+            #Check if the periods are non zero and if they are then run the algorithm
+            if all(i == 0 for i in period_arr):
+                MainWindow.graph_label.setText("Please enter periods")
+                return
             algorithm_name = "Rate Monotonic"
             output, run_time = MainWindow.RM(processes)
             MainWindow.gantt_chart(output, algorithm_name,run_time)
@@ -551,7 +568,7 @@ class Ui_MainWindow(QMainWindow):
             outputs.append([])
             for j in range(len(currentstats[i][5])):
                 outputs[i].append([currentstats[i][5][j], currentstats[i][6][j]])
-        print(currentstats)
+        
                 
         return outputs, hyperperiod
 
@@ -593,6 +610,84 @@ class Ui_MainWindow(QMainWindow):
             if not scheduled:
                 current_time +=1
         return output, algorithm_name
+    #works
+    def rr(MainWindow,processes, runtime):
+        n = len(processes['arrival'])
+        output = [[] for _ in range(n)]
+        current_time = 0
+        algorithm_name = "Round Robin"
+        deadlines_missed = [[] for _ in range(n)]
+
+        while current_time < runtime:
+            schueduled = False
+
+            for i in range(n):
+                start_time = current_time
+                #check if current process has arrived
+                if processes['arrival'][i] <= current_time:
+                    
+                    #check if current task  has finished
+                    if processes['execution'][i] == 0:
+                        continue
+
+                    #if current iteration finishes task 
+                    if processes['execution'][i] <= processes['quantum']:
+                        end_time = start_time + processes['execution'][i]
+                        processes['execution'][i] = 0
+                        output[i].append([start_time, end_time])
+                        current_time = end_time
+                        if end_time > processes['deadline'][i]:
+                            deadlines_missed[i].append(processes['deadline'][i]) 
+
+
+
+                    else:
+                        end_time = start_time + processes['quantum']
+                        processes['execution'][i] -= processes['quantum']
+                        output[i].append([start_time, end_time])
+                        current_time = end_time
+                        if end_time > processes['deadline'][i]:
+                            deadlines_missed[i].append(processes['deadline'][i]) 
+                    schueduled = True
+                
+            if not schueduled:
+                current_time += 1
+        return output, algorithm_name, deadlines_missed
+    #works
+    def gantt_chart_rr(MainWindow, output, algorithm_name, runtime, deadlines_missed):
+        """
+        output has to be in the format [[start_time, end_time], [start_time, end_time], ...]
+        """
+        colors = [f"#{random.randint(0, 0xFFFFFF):06x}" for _ in range(len(output))]
+        fig, gantt_chart = plt.subplots()
+        gantt_chart.set_title(algorithm_name)
+        gantt_chart.set_xlabel("Time")
+        gantt_chart.set_yticks([0])
+        gantt_chart.set_yticklabels([""])
+        for i in range(len(output)):
+            for j in range(len(output[i])):
+                start_time, end_time = output[i][j]
+                gantt_chart.broken_barh([(start_time, end_time - start_time)], (0, 0.5), color=colors[i])
+                gantt_chart.text((start_time + end_time)/2, 0.25, f"T{i+1}", ha="center", va="center", fontsize= "x-small")
+        #check to see if all the deadlines missed are 0 (no deadlines missed)
+        deadlines_sum = [item for sublist in deadlines_missed for item in sublist]
+        if sum(deadlines_sum) == 0:
+            pass
+        else:
+            for i in range(len(deadlines_missed)):
+                if deadlines_missed[i]:
+                    gantt_chart.axvline(x=deadlines_missed[i][0], color='r', linestyle='--')
+                    gantt_chart.text(deadlines_missed[i][0], 0.25, f"T{i+1} missed deadline", ha="center", va="center", rotation=90, fontsize= "x-small")
+
+        gantt_chart.set_xlim(0, runtime)
+        frame = QFrame(MainWindow)
+        frame_layout = QHBoxLayout(frame)
+        frame.setLayout(frame_layout)
+        frame.setFixedSize(791, size.height()-450)
+        canvas = FigureCanvas(fig)
+        frame_layout.addWidget(canvas)
+        image = frame.grab()
+        MainWindow.graph_label.setPixmap(image)
 
     #works
     def gantt_chart(MainWindow,output, algorithm_name,hyperperiod):
@@ -609,13 +704,22 @@ class Ui_MainWindow(QMainWindow):
                 for j in range(len(output[i])):
                     start_time, end_time = output[i][j]
                     gantt_chart.broken_barh([(start_time, end_time - start_time)], (0, 0.5), color=colors[i])
-                    gantt_chart.text((start_time + end_time)/2, 0.25, f"T{i+1}", ha="center", va="center")
+                    gantt_chart.text((start_time + end_time)/2, 0.25, f"T{i+1}", ha="center", va="center", fontsize = "x-small")
             gantt_chart.set_xlim(0, hyperperiod)
             #plt.show()
-            
-            #canvas = FigureCanvas(fig)
-            fig.savefig('/Users/spencermarchand/Documents/VS_code/Python/467_project/img_sav')
-            MainWindow.graph_label.setPixmap(QtGui.QPixmap('/Users/spencermarchand/Documents/VS_code/Python/467_project/img_sav.png'))
+
+            frame = QFrame(MainWindow)
+            frame_layout = QHBoxLayout(frame)
+            frame.setLayout(frame_layout)
+            frame.setFixedSize(791, size.height()-450)
+            canvas = FigureCanvas(fig)
+            frame_layout.addWidget(canvas)
+            image = frame.grab()
+            MainWindow.graph_label.setPixmap(image)
+
+            # fig.savefig('/Users/spencermarchand/Documents/VS_code/Python/467_project/img_sav')
+            # MainWindow.graph_label.setPixmap(QtGui.QPixmap('/Users/spencermarchand/Documents/VS_code/Python/467_project/img_sav.png'))
+
 
 
 if __name__ == "__main__":
