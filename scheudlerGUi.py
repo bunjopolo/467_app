@@ -1,3 +1,4 @@
+import PyQt6
 from PyQt6 import QtCore, QtGui, QtWidgets
 from PyQt6 import QtCore, QtGui, QtWidgets
 from PyQt6.QtWidgets import *
@@ -12,8 +13,6 @@ from matplotlib.figure import Figure
 from PIL import Image
 import sys
 import random
-from PyQt6.QtGui import QPixmap
-from PyQt6.QtWidgets import QApplication, QMainWindow, QLabel, QVBoxLayout, QFrame, QPushButton
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
 
@@ -133,7 +132,6 @@ class Ui_MainWindow(QMainWindow):
         self.comboBox.addItem("")
         self.comboBox.addItem("")
         self.comboBox.addItem("")
-        self.comboBox.addItem("")
         self.comboBox.currentIndexChanged.connect(lambda : self.updateUI()) #connect the combo box to the updateUI function
 
         MainWindow.setCentralWidget(self.centralwidget) #set the central widget of the window
@@ -165,7 +163,6 @@ class Ui_MainWindow(QMainWindow):
         self.comboBox.setItemText(1, _translate("MainWindow", "First come first serve")) #set the text of the combo box
         self.comboBox.setItemText(2, _translate("MainWindow", "Round robin")) #set the text of the combo box
         self.comboBox.setItemText(3, _translate("MainWindow", "Rate Monotonic")) #set the text of the combo box
-        self.comboBox.setItemText(4, _translate("MainWindow", "Shortest job first")) #set the text of the combo box
         self.comboBox.isEditable() #set the combo box to not editable
 
     def updateUI(MainWindow):
@@ -180,7 +177,7 @@ class Ui_MainWindow(QMainWindow):
             MainWindow.time_quant.hide()
             MainWindow.quant_label.hide()
         elif MainWindow.comboBox.currentIndex() == 1: #First come first serve
-            MainWindow.runTime_edit.setReadOnly(True)
+            MainWindow.runTime_edit.setReadOnly(False)
             MainWindow.phas_edit.setReadOnly(False)
             MainWindow.period_edit.setReadOnly(False)
             MainWindow.execution_edit.setReadOnly(False)
@@ -190,7 +187,7 @@ class Ui_MainWindow(QMainWindow):
             MainWindow.clearAll()
 
         elif MainWindow.comboBox.currentIndex() == 2: #Round robin
-            MainWindow.runTime_edit.setReadOnly(True)
+            MainWindow.runTime_edit.setReadOnly(False)
             MainWindow.phas_edit.setReadOnly(False)
             MainWindow.period_edit.setReadOnly(False)
             MainWindow.execution_edit.setReadOnly(False)
@@ -200,7 +197,7 @@ class Ui_MainWindow(QMainWindow):
             MainWindow.clearAll()
 
         elif MainWindow.comboBox.currentIndex() == 3: #Rate monotonic
-            MainWindow.runTime_edit.setReadOnly(True)
+            MainWindow.runTime_edit.setReadOnly(False)
             MainWindow.phas_edit.setReadOnly(False)
             MainWindow.period_edit.setReadOnly(False)
             MainWindow.execution_edit.setReadOnly(False)
@@ -209,15 +206,6 @@ class Ui_MainWindow(QMainWindow):
             MainWindow.quant_label.hide()
             MainWindow.clearAll()
             
-        elif MainWindow.comboBox.currentIndex() == 4: #Shortest job first
-            MainWindow.runTime_edit.setReadOnly(True)
-            MainWindow.phas_edit.setReadOnly(False)
-            MainWindow.period_edit.setReadOnly(False)
-            MainWindow.execution_edit.setReadOnly(False)
-            MainWindow.deadline_edit.setReadOnly(False)
-            MainWindow.time_quant.hide()
-            MainWindow.quant_label.hide()
-            MainWindow.clearAll()
 
     def schedule(MainWindow):
         
@@ -239,12 +227,12 @@ class Ui_MainWindow(QMainWindow):
     
 
         #Grab the string from the runtime box and greate a integer variable for it
-        # run_time = MainWindow.runTime_edit.text()
-        # if not run_time:
-        #     MainWindow.graph_label.setText("Please enter a run time")
-        #     return
-        # else:
-        #     run_time = int(run_time)
+        run_time = MainWindow.runTime_edit.text()
+        if not run_time:
+            run_time = 0
+        else:
+            run_time = int(run_time)
+        print(run_time)
 
         #check if the user entered numbers only
         for i in arrival:
@@ -334,10 +322,9 @@ class Ui_MainWindow(QMainWindow):
             return
         
         #Calculate the run time
-        if number ==1 or number ==2:
+        if (number ==1 or number ==2) and run_time ==0:
             run_time = sum(execution_arr)
-        if number ==3:
-            run_time = 0
+
 
         #Create a dictionary to hold all the arrays
         processes = {'Run Time': run_time, 'arrival': arrival_arr, 'period': period_arr, 'execution': execution_arr, 'deadline': deadline_arr, 'quantum': time_quant_num}
@@ -719,8 +706,6 @@ class Ui_MainWindow(QMainWindow):
 
             # fig.savefig('/Users/spencermarchand/Documents/VS_code/Python/467_project/img_sav')
             # MainWindow.graph_label.setPixmap(QtGui.QPixmap('/Users/spencermarchand/Documents/VS_code/Python/467_project/img_sav.png'))
-
-
 
 if __name__ == "__main__":
     import sys
