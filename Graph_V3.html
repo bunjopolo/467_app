@@ -1,0 +1,343 @@
+
+<html>
+  <style>
+      body {
+      background-color: #222;
+      color: #fff;
+      font-family: 'Helvetica Neue', sans-serif;
+      }
+      #chartdiv {
+      width: 100%;
+      height: 500px;
+      background-color: #333;
+      border-radius: 10px;
+      box-shadow: 0px 0px 10px 2px rgba(0, 0, 0, 0.15);
+      }
+      .container {
+      display: flex;
+      justify-content: flex-start;
+      align-items: center;
+      margin-top: 20px;
+      }
+      .box {
+      border: 1px solid #444;
+      background-color: #797979;
+      padding: 50px;
+      width: 200px;
+      height: 100px;
+      overflow-y: auto;
+      border-radius: 10px;
+      box-shadow: 0px 0px 10px 2px rgba(0, 0, 0, 0.15);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      margin: 20px;
+      }
+      /* CSS for the text */
+      .text {
+      margin-bottom: 10px;
+      font-size: 16px;
+      color: #fff;
+      line-height: 1.5;
+      }
+      /* CSS for the last text element */
+      .text:last-child {
+      margin-bottom: 0;
+      }
+      /* Style the form */
+      form {
+      border: 1px solid #444;
+      background-color: #444;
+      border-radius: 10px;
+      box-shadow: 0px 0px 10px 2px rgba(0, 0, 0, 0.15);
+      width: 40%;
+      margin: 0 auto;
+      padding: 10px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      }
+      /* Style the input fields in center of form */
+      input[type="text"],
+      select,
+      input[type="submit"] {
+      padding: 10px;
+      border: none;
+      border-radius: 5px;
+      margin: 5px;
+      font-size: 1em;
+      font-family: Arial, Helvetica, sans-serif;
+      box-shadow: 0px 0px 5px #ccc;
+      background-color: #ddd;
+      color: #333;
+      }
+      input[type="submit"] {
+      background-color: #001eff;
+      color: #fff;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+      }
+      input[type="submit"]:hover {
+      background-color: #008cff;
+      }
+      h1 {
+      text-align: center;
+      margin: 20px 0;
+      font-size: 2em;
+      }
+      h2 {
+      text-align: center;
+      margin: 10px 0;
+      font-size: 1.5em;
+      }
+      .amcharts-Sprite-group {
+      stroke: #fff;
+      fill: #555;
+      }
+      .amcharts-Sprite-group text {
+      fill: #fff;
+      }
+      .amcharts-Legend-marker {
+      stroke: #fff;
+      }
+      .amcharts-Legend-label {
+      fill: #fff;
+      }
+      .amcharts-Tooltip {
+      background-color: #333;
+      border: 1px solid #fff;
+      }
+      .amcharts-Tooltip-label {
+      color: #fff;
+      }
+  </style>
+  <script src="https://cdn.amcharts.com/lib/5/index.js"></script>
+  <script src="https://cdn.amcharts.com/lib/5/xy.js"></script>
+  <script src="https://cdn.amcharts.com/lib/5/themes/Animated.js"></script>
+  <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; font-size: 48px; font-weight: bold; color: #ffffff; text-align: center; background-color: #222; padding: 30px;">Scheduling Algorithm Calculator</div>
+  <div id="chartdiv"></div>
+  <div class="container"></div>
+  <body>
+      <script>
+        // Create root element
+        // https://www.amcharts.com/docs/v5/getting-started/#Root_element
+        var root = am5.Root.new("chartdiv");
+        
+        // Set themes
+        // https://www.amcharts.com/docs/v5/concepts/themes/
+        root.setThemes([
+        am5themes_Animated.new(root)
+        ]);
+        
+        
+        // Create chart
+        // https://www.amcharts.com/docs/v5/charts/xy-chart/
+        var chart = root.container.children.push(am5xy.XYChart.new(root, {
+        panX: false,
+        panY: false,
+        wheelX: "panX",
+        wheelY: "zoomX",
+        layout: root.verticalLayout
+        }));
+        
+        // Add legend
+        // https://www.amcharts.com/docs/v5/charts/xy-chart/legend-xy-series/
+        var legend = chart.children.push(am5.Legend.new(root, {
+        centerX: am5.p50,
+        x: am5.p50
+        }));
+        
+        //create color set
+        var colors = chart.get("colors");
+        
+        // get data from python
+        values = {{ data|safe }}
+        var data = []
+        
+        //make data for chart
+        for(var i = 0; i < values.length; i++){
+          for (var j = 0; j < values[i].length; j++){
+              data.push({
+                  category: "Task "+(i+1),
+                  fromValue: values[i][j][0],
+                  toValue: values[i][j][1],
+                  columnSettings: {
+                      fill: am5.Color.brighten(colors.getIndex(i), 0.1 * i)
+                  }
+              })
+              console.log(values[i][j][0])
+          }
+        }
+        
+        //make labels
+        var labels = []
+        for(var i = 0; i < values.length; i++){
+          labels.push({
+              category: "Task "+(i+1)
+          })
+        }
+        
+        // Create axes
+        // https://www.amcharts.com/docs/v5/charts/xy-chart/axes/
+        var yAxis = chart.yAxes.push(
+        am5xy.CategoryAxis.new(root, {
+          categoryField: "category",
+          renderer: am5xy.AxisRendererY.new(root, {
+            inversed: true
+          }),
+          tooltip: am5.Tooltip.new(root, {
+            themeTags: ["axis"],
+            animationDuration: 1000
+          })
+        })
+        );
+        
+        
+        //set the y axis to the task labels 
+        yAxis.data.setAll(labels);
+        
+        
+        var xAxis = chart.xAxes.push(
+        am5xy.ValueAxis.new(root, {
+          renderer: am5xy.AxisRendererX.new(root, {
+            strokeOpacity: 0.1
+          })
+        })
+        );
+        
+        // Add series
+        // https://www.amcharts.com/docs/v5/charts/xy-chart/series/
+        var series = chart.series.push(am5xy.ColumnSeries.new(root, {
+        xAxis: xAxis,
+        yAxis: yAxis,
+        openValueXField: "fromValue",
+        valueXField: "toValue",
+        categoryYField: "category",
+        sequencedInterpolation: true
+        }));
+        
+        series.columns.template.setAll({
+        templateField: "columnSettings",
+        strokeOpacity: 0,
+        tooltipText: "{category}: {openValueX} - {valueX}"
+        });
+        
+        series.data.setAll(data);
+        
+        
+        // Add scrollbars
+        chart.set("scrollbarX", am5.Scrollbar.new(root, {
+        orientation: "horizontal"
+        }));
+        
+        // Make stuff animate on load
+        // https://www.amcharts.com/docs/v5/concepts/animations/
+        series.appear();
+        chart.appear(1000, 100);
+      </script>
+  </body>
+  <div id="input"></div>
+  <div class="container">
+      <form method="POST" action="/" onsubmit="return validateForm()">
+        <h2 style="font-family:verdana;">Enter tasks (comma-separated integers)</h2>
+        <h3 style="font-family:verdana;">Deadlines Missed</h3>
+        <div class="box" id="deadlines-box"></div>
+        <div style="display:stretch;">
+          <select name="algorithm" onchange="showInputs()">
+            <option value="fcfs">First-Come-First-Serve</option>
+            <option value="fcfs-p">First-Come-First-Serve (Periodic Tasks)</option>
+            <option value="rr">Round Robin</option>
+          </select>
+            <div style="flex:1;">
+            <input type="text" name="arrival_times" required placeholder="Arrival Times" pattern="^(\d+,)*\d+$"><br><br>
+            <input type="text" name="execution_times" required placeholder="Execution times" pattern="^(\d+,)*\d+$"><br><br>
+            <input type="text" name="runtime" required placeholder="Runtime" pattern="^\d+$"><br><br>
+              <div id="period-div" style="display:none">
+                  <input type="text" name="period" id="period-input" placeholder="Period" pattern="^(\d+,)*\d+$"><br><br>
+              </div>
+              <div id="quantum-div" style="display:none">
+                  <input type="text" name="quantum" id="quantum-input" placeholder="Quantum" pattern="^\d+$"><br><br>
+              </div>
+              <div id = "deadline-div" style="display:block">
+                  <input type="text" name="deadlines" id="deadline-input" placeholder="Deadlines" pattern="^(\d+,)*\d+$"><br><br>
+            </div>
+        </div>
+        <div>
+          <input type="submit" value="Schedule">
+        </div>
+      </form>
+  </div>
+
+  <script>
+      function validateForm() {
+        let arrival_times_input = document.getElementsByName("arrival_times")[0];
+        let execution_times_input = document.getElementsByName("execution_times")[0];
+        let runtime_input = document.getElementsByName("runtime")[0];
+        let deadlines_input = document.getElementsByName("Deadlines")[0];
+      
+        let is_valid = true;
+      
+        if (!arrival_times_input.checkValidity()) {
+          arrival_times_input.setCustomValidity("Enter Arrival Times");
+          is_valid = false;
+        }
+      
+        if (!execution_times_input.checkValidity()) {
+          execution_times_input.setCustomValidity("Enter Execution Times");
+          is_valid = false;
+        }
+      
+        if (!runtime_input.checkValidity()) {
+          runtime_input.setCustomValidity("Enter Runtime");
+          is_valid = false;
+        }
+        if (!deadlines_input.checkValidity()) {
+          deadlines_input.setCustomValidity("Enter Deadlines");
+          is_valid = false;
+        }
+      
+      
+        return is_valid;
+      }
+  </script>
+  <script>
+      function showInputs() {
+        var algorithm = document.getElementsByName("algorithm")[0].value;
+        var periodDiv = document.getElementById("period-div");
+        var quantumDiv = document.getElementById("quantum-div");
+        var deadlineDiv = document.getElementById("deadline-div");
+        if (algorithm === "fcfs-p") {
+          periodDiv.style.display = "block";
+          quantumDiv.style.display = "none";
+          deadlineDiv.style.display = "none";
+
+        } else if (algorithm === "rr") {
+          periodDiv.style.display = "none";
+          quantumDiv.style.display = "block";
+        deadlineDiv.style.display = "block";
+
+        } else {
+          periodDiv.style.display = "none";
+          quantumDiv.style.display = "none";
+        deadlineDiv.style.display = "block";
+        }
+      }
+  </script>
+  <script>
+      // List of strings to display
+      stringList = {{deadlines|safe}}
+      
+      // Get the box element
+      var box = document.getElementById("deadlines-box");
+      
+      // Loop through the stringList and create a <p> element for each string
+      for (var i = 0; i < stringList.length; i++) {
+        var p = document.createElement("p");
+        var text = document.createTextNode(stringList[i]);
+        p.appendChild(text);
+        box.appendChild(p);
+      }
+  </script>
+</html>
