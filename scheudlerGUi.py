@@ -337,10 +337,11 @@ class Ui_MainWindow(QMainWindow):
 
         if number == 1:
             # First come first serve
-            print("Running First come first serve")
-            output, algorithm_name = MainWindow.fcfs(processes, run_time)
-            print(output)
-            print(algorithm_name)
+            if sum(period_arr) ==0:
+                output, algorithm_name = MainWindow.fcfs(processes, run_time)
+            else:
+                output, algorithm_name = MainWindow.fcfs_periodic(processes, run_time)
+            algorithm_name = "First Come First Serve"
             MainWindow.gantt_chart(output, algorithm_name, run_time)
 
         if number == 2:
@@ -350,12 +351,14 @@ class Ui_MainWindow(QMainWindow):
             
         if number == 3:
             # Rate monotonic
-            #Check if the periods are non zero and if they are then run the algorithm
+            
             if all(i == 0 for i in period_arr):
                 MainWindow.graph_label.setText("Please enter periods")
                 return
+            
             algorithm_name = "Rate Monotonic"
             output, run_time = MainWindow.RM(processes)
+            
             MainWindow.gantt_chart(output, algorithm_name,run_time)
         if number == 4:
             # Shortest job first
@@ -391,9 +394,6 @@ class Ui_MainWindow(QMainWindow):
         currenttask = 1
         newtasks = []
         hyperperiod = 0
-        starttimes = []
-        completiontimes = []
-        newtask = False
         taskorder = []
 
 
@@ -542,9 +542,7 @@ class Ui_MainWindow(QMainWindow):
                 currenttask = temp
             if currentstats[0][5][-1] == hyperperiod: # checks if the current task is complete and remove last element
                 currentstats[0][5].pop() # remove the last element of the end time list
-
-            
-                        
+        
                         
         currentstats = deadlinemiss(currentstats)    
 
@@ -596,6 +594,48 @@ class Ui_MainWindow(QMainWindow):
             # if no tasks were scheduled in this iteration, incriment time
             if not scheduled:
                 current_time +=1
+        return output, algorithm_name
+    
+    def fcfs_periodic(self,processes, runtime):
+        algorithm_name = "First Come First Serve (FCFS)"
+        n = len(processes['arrival'])
+        output = [[] for _ in range(n)]
+        current_time = 0 
+        periods = processes['period']
+        next_arrival = processes['arrival'].copy()
+        deadlines_missed = [0 for _ in range(n)]
+
+        while current_time <= runtime:
+            scheduled = False
+            for i in range(n):
+                # check if it's time for the task to arrive
+                if current_time >= next_arrival[i]:
+                    # get start time and end time of current task instance
+                    start_time = max(current_time, next_arrival[i])
+                    if start_time + processes['execution'][i] > runtime:
+                        end_time = runtime 
+                        # check if deadline is missed
+                        if end_time > next_arrival[i]:
+                            deadlines_missed.append(next_arrival[i])
+                        # add task instance to output
+                        output[i].append([start_time, end_time])
+                        return output, algorithm_name
+                    else:
+                        end_time = start_time + processes['execution'][i]
+                        # check if deadline is missed
+                        if end_time > next_arrival[i]:
+                            deadlines_missed.append(next_arrival[i])
+                        # add task instance to output
+                        output[i].append([start_time, end_time])
+                    current_time = end_time
+                    next_arrival[i] = start_time + periods[i]
+                    # indicate that a task was scheduled in this iteration 
+                    scheduled = True
+
+            # if no tasks were scheduled in this iteration, increment time
+            if not scheduled:
+                current_time += 1
+            print("Deadlines missed", deadlines_missed)
         return output, algorithm_name
     #works
     def rr(MainWindow,processes, runtime):
@@ -710,7 +750,7 @@ class Ui_MainWindow(QMainWindow):
 if __name__ == "__main__":
     import sys
     app = QtWidgets.QApplication(sys.argv)
-    app.setStyle('Fusion')
+    #app.setStyle('Windows')
     MainWindow = QtWidgets.QMainWindow()
     ui = Ui_MainWindow()
     ui.setupUi(MainWindow)
